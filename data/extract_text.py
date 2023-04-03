@@ -27,7 +27,7 @@ def extract(in_file_name: str, out_file_name: str, overwrite: bool = False):
         next(reader, None)  # To skip header 
         with open(out_file_name, 'w', encoding="utf8") as output_file:
             for row in reader:
-                output_file.write(row[1])
+                output_file.write(row[1] + '\n')
 
 
 if __name__ == "__main__":
