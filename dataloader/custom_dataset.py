@@ -1,4 +1,3 @@
-import tiktoken
 import torch
 from torch.utils.data import Dataset
 
@@ -6,7 +5,7 @@ from torch.utils.data import Dataset
 class PoeDataset(Dataset):
     valid_split_params = ["train", "valid"]
 
-    def __init__(self, file_path: str, split: str, split_ratio: float, context_length: int, offset: int = 1):
+    def __init__(self, file_path: str, split: str, split_ratio: float, context_length: int, tokenizer, offset: int = 1):
         ''' Poe Dataset constructor
 
         Args:
@@ -31,7 +30,7 @@ class PoeDataset(Dataset):
 
         self.offset = offset
         self.context_length = context_length
-        self.tokenizer = tiktoken.get_encoding("cl100k_base")
+        self.tokenizer = tokenizer
         self.data = torch.tensor(self.tokenizer.encode(self.text), dtype=torch.int32)
 
         split_idx = int(len(self.data) * split_ratio)
