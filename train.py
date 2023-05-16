@@ -16,13 +16,24 @@ with open(file_path, 'r', encoding="utf-8") as f:
             text = f.read()
 
 tokenizer = Tokenizer(text)
+net_config = {
+    "vocab_size": lambda: tokenizer.vocab_size
+}
 
 # Dataset and dataloader
 train_set = PoeDataset(text, 'train', split_ratio, context_length, tokenizer, offset=offset)
 train_dataloader = DataLoader(train_set, batch_size=batch_size, shuffle=True, drop_last=True)
 x, y = next(iter(train_dataloader))
 
-# # Model
-# model = OnlyDecoder(net_config)
-# out = model(x, y)
-# print(out.shape)
+
+# Setting up net parameters
+for key, value in net_config.items():
+  if callable(value):
+    net_config[key] = value()
+  else:
+    net_config[key]
+
+# Model
+model = OnlyDecoder(net_config)
+out = model(x, y)
+print(out.shape)
