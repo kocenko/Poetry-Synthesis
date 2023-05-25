@@ -5,7 +5,7 @@ from torch.utils.data import Dataset
 class PoeDataset(Dataset):
     valid_split_params = ["train", "valid"]
 
-    def __init__(self, text: str, split: str, split_ratio: float, context_length: int, tokenizer, offset: int = 1):
+    def __init__(self, text: str, split: str, split_ratio: float, context_length: int, tokenizer, device, offset: int = 1):
         ''' Poe Dataset constructor
 
         Args:
@@ -29,13 +29,14 @@ class PoeDataset(Dataset):
         self.offset = offset
         self.context_length = context_length
         self.tokenizer = tokenizer
-        self.data = torch.tensor(self.tokenizer.encode(self.text), dtype=torch.int32)
+        self.data = torch.tensor(self.tokenizer.encode(self.text), dtype=torch.int32, device=device)
 
         split_idx = int(len(self.data) * split_ratio)
         if split == "train":
             self.data = self.data[:split_idx]
         else:
             self.data = self.data[split_idx:]
+        
 
     def __len__(self):
         ''' Returns the size of the dataset
@@ -43,7 +44,7 @@ class PoeDataset(Dataset):
         Returns:
             Number of possible shifts in the dataset for choosing the context chunk
         '''
-        return len(self.data) - self.context_length - self.context_length + 1
+        return len(self.data) - self.context_length - self.offset + 1
     
     def __getitem__(self, index):
         ''' Returns an item of given index
@@ -54,7 +55,6 @@ class PoeDataset(Dataset):
         Returns:
             Sample of given index
         '''
-        assert index > 0 and index < self.__len__()
 
         x = self.data[index: index + self.context_length]
         y = self.data[index + self.offset: index + self.context_length + self.offset]
